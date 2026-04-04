@@ -1,3 +1,4 @@
+import ProductCatalogPage from "@/features/products/components/ProductCatalogPage";
 import { createClient } from "@/lib/supabase/server";
 import { redirect } from "next/navigation";
 
@@ -13,5 +14,5 @@ export default async function page() {
     redirect("/auth/login");
   }
 
-  return <div>{user.id}</div>;
+  return <ProductCatalogPage />;
 }
