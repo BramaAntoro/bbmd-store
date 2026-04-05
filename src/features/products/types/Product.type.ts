@@ -2,12 +2,22 @@ import type { Tables } from "@/lib/supabase/database.types";
 
 export type Product = Tables<"products">;
 
+export type ProductListItem = Pick<Product, "id" | "name" | "price" | "stock">;
+
 export type ProductStat = {
   label: string;
   value: string;
   suffix?: string;
   change?: number;
 };
+
+export type ProductTableProps = {
+  products: ProductListItem[];
+  currentPage: number;
+  totalPages: number;
+  totalProducts: number;
+};
+
 
 export const MOCK_STATS: ProductStat[] = [
   { label: "Total Inventory", value: "1,284", change: 12 },

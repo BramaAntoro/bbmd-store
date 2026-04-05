@@ -3,50 +3,21 @@
 import { Pencil, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import type { Product } from "../types/Product.type";
+import type { ProductTableProps } from "../types/Product.type";
+import getStockDisplay from "../utils/getStockDisplay.util";
+import { usePageChange } from "@/hooks/usePageChange.hook";
+import setPagination from "@/utils/setPagination.util";
 
-const LOW_STOCK_THRESHOLD = 10;
-
-type ProductTableProps = {
-  products: Product[];
-  currentPage: number;
-  totalPages: number;
-  totalProducts: number;
-  onPageChange: (page: number) => void;
-};
-
-function getStockDisplay(stock: number) {
-  if (stock === 0) {
-    return { label: "Out of stock", color: "text-red-500", dot: "bg-red-500" };
-  }
-  if (stock <= LOW_STOCK_THRESHOLD) {
-    return {
-      label: `Low stock: ${stock}`,
-      color: "text-amber-500",
-      dot: "bg-amber-500",
-    };
-  }
-  return {
-    label: `${stock} in stock`,
-    color: "text-emerald-600",
-    dot: "bg-emerald-500",
-  };
-}
-
-function getProductInitial(name: string) {
-  return name.charAt(0).toUpperCase();
-}
 
 export function ProductTable({
   products,
   currentPage,
   totalPages,
   totalProducts,
-  onPageChange,
 }: ProductTableProps) {
-  const perPage = 10;
-  const from = (currentPage - 1) * perPage + 1;
-  const to = Math.min(currentPage * perPage, totalProducts);
+  const { handlePageChange } = usePageChange();
+
+  const { from, to } = setPagination(currentPage, totalProducts);
 
   return (
     <div className="rounded-xl border border-zinc-200 bg-white shadow-sm overflow-hidden">
@@ -80,17 +51,9 @@ export function ProductTable({
                   <td className="px-5 py-4">
                     <div className="flex items-center gap-3.5">
                       {/* Placeholder avatar karena Supabase tidak ada imageUrl */}
-                      <div className="h-10 w-10 rounded-lg border border-zinc-100 bg-zinc-100 overflow-hidden shrink-0 shadow-sm flex items-center justify-center">
-                        <span className="text-sm font-semibold text-zinc-500">
-                          {getProductInitial(product.name)}
-                        </span>
-                      </div>
                       <div>
                         <p className="font-medium text-zinc-800 leading-snug">
                           {product.name}
-                        </p>
-                        <p className="text-xs text-zinc-400 mt-0.5">
-                          {product.sku ? `SKU: ${product.sku}` : `Barcode: ${product.barcode}`}
                         </p>
                       </div>
                     </div>
@@ -98,7 +61,11 @@ export function ProductTable({
 
                   {/* Price */}
                   <td className="px-5 py-4 font-medium text-zinc-700">
-                    ${product.price.toFixed(2)}
+                    {new Intl.NumberFormat("id-ID", {
+                      style: "currency",
+                      currency: "IDR",
+                      minimumFractionDigits: 0,
+                    }).format(product.price)}
                   </td>
 
                   {/* Stock */}
@@ -107,7 +74,7 @@ export function ProductTable({
                       <span
                         className={cn(
                           "inline-block h-2 w-2 rounded-full shrink-0",
-                          stock.dot
+                          stock.dot,
                         )}
                       />
                       <span className={cn("text-sm font-medium", stock.color)}>
@@ -154,7 +121,7 @@ export function ProductTable({
             size="icon"
             className="h-7 w-7 text-zinc-400 hover:text-zinc-700 disabled:opacity-30"
             disabled={currentPage === 1}
-            onClick={() => onPageChange(currentPage - 1)}
+            onClick={() => handlePageChange(currentPage - 1)}
           >
             <ChevronLeft size={14} />
           </Button>
@@ -164,12 +131,12 @@ export function ProductTable({
               key={page}
               variant="ghost"
               size="icon"
-              onClick={() => onPageChange(page)}
+              onClick={() => handlePageChange(page)}
               className={cn(
                 "h-7 w-7 text-xs font-medium",
                 currentPage === page
                   ? "bg-emerald-600 text-white hover:bg-emerald-700"
-                  : "text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100"
+                  : "text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100",
               )}
             >
               {page}
@@ -181,7 +148,7 @@ export function ProductTable({
             size="icon"
             className="h-7 w-7 text-zinc-400 hover:text-zinc-700 disabled:opacity-30"
             disabled={currentPage === totalPages}
-            onClick={() => onPageChange(currentPage + 1)}
+            onClick={() => handlePageChange(currentPage + 1)}
           >
             <ChevronRight size={14} />
           </Button>
