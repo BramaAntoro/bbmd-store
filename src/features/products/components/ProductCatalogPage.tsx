@@ -2,7 +2,7 @@
 import { ProductHeader } from "./ProductHeader";
 import { ProductStats } from "./ProductStats";
 import { ProductTable } from "./ProductTable";
-import { MOCK_STATS } from "../types/Product.type";
+import { MOCK_STATS } from "../types/Product.types";
 import getProductsAction from "../actions/getProducts.action";
 import { AppError } from "@/lib/errors/AppError";
 import { TypeSearchParams } from "@/types/searchParams.type";

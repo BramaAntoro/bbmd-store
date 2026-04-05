@@ -1,7 +1,7 @@
 "use client";
 
 import { TrendingDown, TrendingUp } from "lucide-react";
-import type { ProductStat } from "../types/Product.type";
+import type { ProductStat } from "../types/Product.types";
 
 type ProductStatsProps = {
   stats: ProductStat[];

@@ -3,10 +3,10 @@
 import { Pencil, Trash2, ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import type { ProductTableProps } from "../types/Product.type";
 import getStockDisplay from "../utils/getStockDisplay.util";
 import { usePageChange } from "@/hooks/usePageChange.hook";
 import setPagination from "@/utils/setPagination.util";
+import { TypeProductTableProps } from "../types/ProductTableProps.type";
 
 
 export function ProductTable({
@@ -14,7 +14,7 @@ export function ProductTable({
   currentPage,
   totalPages,
   totalProducts,
-}: ProductTableProps) {
+}: TypeProductTableProps) {
   const { handlePageChange } = usePageChange();
 
   const { from, to } = setPagination(currentPage, totalProducts);
@@ -26,10 +26,10 @@ export function ProductTable({
           <thead>
             <tr className="border-b border-zinc-100 bg-zinc-50/60">
               <th className="px-5 py-3.5 text-left text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
-                Product Name
+                Nama produk
               </th>
               <th className="px-5 py-3.5 text-left text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
-                Price
+                Harga
               </th>
               <th className="px-5 py-3.5 text-left text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
                 Stock

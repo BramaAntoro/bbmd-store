@@ -1,4 +1,4 @@
-"use server"
+"use server";
 
 import getProductsService from "../services/getProducts.service";
 

@@ -4,13 +4,13 @@ import responseSuccess from "@/lib/responses/responseSuccess";
 import { createClient } from "@/lib/supabase/server";
 import { TypePaginationMeta } from "@/types/paginationMeta.type";
 import { TypeResponseSuccess } from "@/types/responseSuccess.type";
-import { ProductListItem } from "../types/Product.type";
+import { TypeProductListItem } from "../types/ProductListItem.type";
 
 export default async function getProductsService(
   name?: string,
   page: number = 1,
   limit: number = 10,
-): Promise<AppError | TypeResponseSuccess<ProductListItem[]>> {
+): Promise<AppError | TypeResponseSuccess<TypeProductListItem[]>> {
   const supabase = await createClient();
 
   const userId = await getUserId();
