@@ -1,15 +1,17 @@
 "use client";
 
-import { Download, Plus, Search } from "lucide-react";
+import { Plus, Search } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useTransition, useState } from "react";
+import { AddProductModal } from "./AddProductModal";
 
 export function ProductHeader() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [isPending, startTransition] = useTransition();
   const [value, setValue] = useState(searchParams.get("name") ?? "");
+  const [addProductModal, setAddProductModal] = useState(false);
 
   const handleSearch = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
@@ -35,8 +37,8 @@ export function ProductHeader() {
           Product
         </h1>
         <p className="mt-1.5 max-w-md text-sm text-zinc-500 leading-relaxed">
-          Kelola inventaris atelier digital Anda dengan tepat dan mudah.
-          Lihat, edit, dan kurasi penawaran Anda.
+          Kelola inventaris atelier digital Anda dengan tepat dan mudah. Lihat,
+          edit, dan kurasi penawaran Anda.
         </p>
       </div>
 
@@ -59,11 +61,15 @@ export function ProductHeader() {
           )}
         </div>
 
-        <Button className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium h-9 px-4 shadow-sm">
+        <Button
+          onClick={() => setAddProductModal(true)}
+          className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium h-9 px-4 shadow-sm"
+        >
           <Plus size={14} />
           Tambah Produk
         </Button>
       </div>
+      <AddProductModal open={addProductModal} onClose={() => setAddProductModal(false)} />
     </div>
   );
 }
