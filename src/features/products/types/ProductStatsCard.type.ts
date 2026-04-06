@@ -1,4 +1,4 @@
-export type TypeProductStat = {
+export type TypeProductStatsCard = {
   label: string;
   value: string;
   suffix?: string;

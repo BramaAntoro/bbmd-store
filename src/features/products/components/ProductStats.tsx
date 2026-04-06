@@ -1,10 +1,10 @@
 "use client";
 
 import { TrendingDown, TrendingUp } from "lucide-react";
-import type { ProductStat } from "../types/Product.types";
+import { TypeProductStatsCard } from "../types/ProductStatsCard.type";
 
 type ProductStatsProps = {
-  stats: ProductStat[];
+  stats: TypeProductStatsCard[];
 };
 
 export function ProductStats({ stats }: ProductStatsProps) {

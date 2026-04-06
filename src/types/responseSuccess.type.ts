@@ -5,5 +5,5 @@ export type TypeResponseSuccess<T> = {
   data: T;
   message: string;
   statusCode: number;
-  meta: TypePaginationMeta | null;
+  meta?: TypePaginationMeta | null;
 };
