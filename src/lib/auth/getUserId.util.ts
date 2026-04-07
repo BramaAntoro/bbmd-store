@@ -5,12 +5,11 @@ export default async function getUserId() {
   const supabase = await createClient();
 
   const {
-    data: { user },
-    error,
-  } = await supabase.auth.getUser();
+    data: { session },
+  } = await supabase.auth.getSession();
 
-  if (error) throw new AppError(error.message);
-  if (!user) throw new AppError("Unauthorized", 401);
+ 
+  if (!session) throw new AppError("Unauthorized", 401);
 
-  return user.id;
+  return session.user.id;
 }

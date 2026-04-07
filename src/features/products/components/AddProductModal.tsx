@@ -14,6 +14,9 @@ import { Resolver, SubmitHandler, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { productSchema } from "../schema/products.schema";
 import { TypeProductInput } from "../types/ProductInput.type";
+import postProductAction from "../actions/postProduct.action";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 type AddProductModalProps = {
   open: boolean;
@@ -24,14 +27,29 @@ export function AddProductModal({ open, onClose }: AddProductModalProps) {
   const {
     register,
     handleSubmit,
-    formState: { errors },
+    formState: { errors, isSubmitting },
+    reset,
   } = useForm<TypeProductInput>({
     resolver: zodResolver(productSchema) as Resolver<TypeProductInput>,
   });
 
-  const onSubmit: SubmitHandler<TypeProductInput> = (data) => {
-    onClose();
-    console.log("data:", data);
+  const [serverError, setServerError] = useState<string | null>(null);
+
+  const router = useRouter();
+
+  const onSubmit: SubmitHandler<TypeProductInput> = async (data) => {
+    try {
+      await postProductAction(data);
+      reset();
+      onClose();
+      router.refresh();
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setServerError(err.message);
+      } else {
+        setServerError("Terjadi kesalahan tidak diketahui");
+      }
+    }
   };
 
   return (
@@ -43,13 +61,7 @@ export function AddProductModal({ open, onClose }: AddProductModalProps) {
           </DialogTitle>
         </DialogHeader>
 
-        {/* {onSubmit.name && (
-          <p className="text-xs text-500">{onSubmit?.data.name}</p>
-        )}
-
-        {errors.name && (
-          <p className="text-xs text-red-500">{errors.name.message}</p>
-        )} */}
+        {serverError && <p className="text-xs text-red-500">{serverError}</p>}
 
         <form
           onSubmit={handleSubmit(onSubmit, (errors) => console.dir(errors))}
@@ -176,7 +188,7 @@ export function AddProductModal({ open, onClose }: AddProductModalProps) {
               type="submit"
               className="bg-emerald-600 hover:bg-emerald-700 text-white h-9 px-4 text-sm"
             >
-              Simpan product
+              {isSubmitting ? "Menyimpan" : "Simpan product"}
             </Button>
           </DialogFooter>
         </form>
