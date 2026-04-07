@@ -6,7 +6,7 @@ import responseSuccess from "@/lib/responses/responseSuccess";
 import { TypeProductStatsCard } from "../types/ProductStatsCard.type";
 
 export default async function getStatsProductsService(): Promise<
-  AppError | TypeResponseSuccess<TypeProductStatsCard[]>
+  TypeResponseSuccess<TypeProductStatsCard[]>
 > {
   const supabase = await createClient();
 
@@ -30,7 +30,7 @@ export default async function getStatsProductsService(): Promise<
     { label: "Out of Stock", value: String(outOfStock ?? 0) },
   ];
 
-  if (error) return new AppError("Failed to get total products");
+  if (error) throw new AppError("Failed to get total products");
 
   return responseSuccess(stats, "Successfully retrieved statistics");
 }

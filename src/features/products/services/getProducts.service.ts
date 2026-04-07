@@ -10,7 +10,7 @@ export default async function getProductsService(
   name?: string,
   page: number = 1,
   limit: number = 10,
-): Promise<AppError | TypeResponseSuccess<TypeProductListItem[]>> {
+): Promise<TypeResponseSuccess<TypeProductListItem[]>> {
   const supabase = await createClient();
 
   const userId = await getUserId();
@@ -39,7 +39,7 @@ export default async function getProductsService(
     totalPages: totalPages,
   };
 
-  if (error) return new AppError("Failed to get products");
+  if (error) throw new AppError("Failed to get products");
 
   return responseSuccess(data, "Success get data products", 200, meta);
 }
