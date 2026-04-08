@@ -70,6 +70,9 @@ export function ProductTable({
                   Harga
                 </th>
                 <th className="px-5 py-3.5 text-left text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
+                  Modal/Biaya
+                </th>
+                <th className="px-5 py-3.5 text-left text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
                   Stock
                 </th>
                 <th className="px-5 py-3.5 text-right text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
@@ -99,6 +102,14 @@ export function ProductTable({
                         currency: "IDR",
                         minimumFractionDigits: 0,
                       }).format(product.price)}
+                    </td>
+
+                    <td className="px-5 py-4 font-medium text-zinc-700">
+                      {new Intl.NumberFormat("id-ID", {
+                        style: "currency",
+                        currency: "IDR",
+                        minimumFractionDigits: 0,
+                      }).format(product.cost)}
                     </td>
 
                     <td className="px-5 py-4">

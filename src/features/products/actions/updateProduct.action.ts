@@ -1,6 +1,8 @@
-import updateProductService from "../services/updateProduct.service";
-import { TypeProductInput } from "../types/ProductInput.type";
+"use server"
 
-export default async function updateProductAction(data: TypeProductInput) {
+import updateProductService from "../services/updateProduct.service";
+import { TypeProductUpdate } from "../types/ProductInput.type";
+
+export default async function updateProductAction(data: TypeProductUpdate) {
     return await updateProductService(data);
 }

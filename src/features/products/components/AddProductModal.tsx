@@ -30,7 +30,7 @@ export function AddProductModal({ open, onClose }: AddProductModalProps) {
     formState: { errors, isSubmitting },
     reset,
   } = useForm<TypeProductInput>({
-    resolver: zodResolver(productSchema) as Resolver<TypeProductInput>,
+    resolver: zodResolver(productSchema) as unknown as Resolver<TypeProductInput>,
   });
 
   const [serverError, setServerError] = useState<string | null>(null);
@@ -64,7 +64,7 @@ export function AddProductModal({ open, onClose }: AddProductModalProps) {
         {serverError && <p className="text-xs text-red-500">{serverError}</p>}
 
         <form
-          onSubmit={handleSubmit(onSubmit, (errors) => console.dir(errors))}
+          onSubmit={handleSubmit(onSubmit)}
         >
           <div className="flex flex-col gap-4 py-2">
             {/* Name */}
