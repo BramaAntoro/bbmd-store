@@ -4,13 +4,14 @@ import responseSuccess from "@/lib/responses/responseSuccess";
 import { createClient } from "@/lib/supabase/server";
 import { TypePaginationMeta } from "@/types/paginationMeta.type";
 import { TypeResponseSuccess } from "@/types/responseSuccess.type";
-import { TypeProductListItem } from "../types/ProductListItem.type";
+import { TypeProduct } from "../types/Product.type";
+// import { TypeProduct } from "../types/ProductListItem.type";
 
 export default async function getProductsService(
   name?: string,
   page: number = 1,
   limit: number = 10,
-): Promise<TypeResponseSuccess<TypeProductListItem[]>> {
+): Promise<TypeResponseSuccess<TypeProduct[]>> {
   const supabase = await createClient();
 
   const userId = await getUserId();
@@ -20,7 +21,7 @@ export default async function getProductsService(
 
   let query = supabase
     .from("products")
-    .select("id, name, price, stock", { count: "exact" })
+    .select("*", { count: "exact" })
     .eq("user_id", userId);
 
   if (name) {

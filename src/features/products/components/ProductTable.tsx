@@ -9,6 +9,7 @@ import { usePageChange } from "@/hooks/usePageChange.hook";
 import setPagination from "@/utils/setPagination.util";
 import { TypeProductTableProps } from "../types/ProductTableProps.type";
 import { useRouter } from "next/navigation";
+import { UpdateProductModal } from "./UpdateProductModal";
 
 import {
   Dialog,
@@ -33,6 +34,9 @@ export function ProductTable({
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const [deleteName, setDeleteName] = useState<string | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [editProduct, setEditProduct] = useState<
+    TypeProductTableProps["products"][number] | null
+  >(null);
 
   const handleConfirmDelete = async () => {
     if (!deleteId) return;
@@ -119,6 +123,7 @@ export function ProductTable({
                         <Button
                           variant="ghost"
                           size="icon"
+                          onClick={() => setEditProduct(product)}
                           className="h-8 w-8 text-zinc-400 hover:text-emerald-600 hover:bg-emerald-50 group-hover:opacity-100"
                         >
                           <Pencil size={14} />
@@ -216,6 +221,12 @@ export function ProductTable({
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      <UpdateProductModal
+        open={!!editProduct}
+        product={editProduct}
+        onClose={() => setEditProduct(null)}
+      />
     </>
   );
 }
