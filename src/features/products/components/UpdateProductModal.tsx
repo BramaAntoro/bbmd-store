@@ -17,7 +17,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { productSchema } from "../schema/products.schema";
 import updateProductAction from "../actions/updateProduct.action";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { formatNumber, parseNumber } from "@/utils/formatCurrency.util";
 
 type UpdateProductModalProps = {
   open: boolean;
@@ -37,6 +38,7 @@ export function UpdateProductModal({
   const {
     register,
     handleSubmit,
+    reset,
     formState: { errors, isSubmitting },
   } = useForm<TypeProductUpdate>({
     resolver: zodResolver(
@@ -44,9 +46,19 @@ export function UpdateProductModal({
     ) as unknown as Resolver<TypeProductUpdate>,
   });
 
+  useEffect(() => {
+    if (product) {
+      reset({
+        ...product,
+        price: formatNumber(product.price) as unknown as number,
+        cost: formatNumber(product.cost) as unknown as number,
+      });
+    }
+  }, [product, reset]);
+
   const onSubmit: SubmitHandler<TypeProductUpdate> = async (data) => {
     try {
-      await updateProductAction({...data, id: product!.id});
+      await updateProductAction({ ...data, id: product!.id });
       onClose();
       router.refresh();
     } catch (error: unknown) {
@@ -82,7 +94,6 @@ export function UpdateProductModal({
               )}
               <Input
                 {...register("name")}
-                defaultValue={product?.name}
                 placeholder="e.g. Wireless Mouse"
                 className="h-9 text-sm border-zinc-200 focus-visible:ring-emerald-500"
               />
@@ -97,7 +108,6 @@ export function UpdateProductModal({
                 )}
                 <Input
                   {...register("sku")}
-                  defaultValue={product?.sku ?? ""}
                   placeholder="e.g. SKU-001"
                   className="h-9 text-sm border-zinc-200 focus-visible:ring-emerald-500"
                 />
@@ -113,7 +123,6 @@ export function UpdateProductModal({
                 )}
                 <Input
                   {...register("barcode")}
-                  defaultValue={product?.barcode}
                   placeholder="e.g. BAR-001"
                   className="h-9 text-sm border-zinc-200 focus-visible:ring-emerald-500"
                 />
@@ -134,9 +143,14 @@ export function UpdateProductModal({
                     Rp
                   </span>
                   <Input
-                    {...register("price")}
-                    defaultValue={product?.price}
-                    type="number"
+                    {...register("price", {
+                      setValueAs: (v) => parseNumber(v),
+                      onChange: (e) => {
+                        const numericValue = parseNumber(e.target.value);
+                        e.target.value = formatNumber(numericValue);
+                      },
+                    })}
+                    type="text"
                     placeholder="0"
                     className="h-9 text-sm border-zinc-200 focus-visible:ring-emerald-500 pl-8"
                   />
@@ -154,9 +168,14 @@ export function UpdateProductModal({
                     Rp
                   </span>
                   <Input
-                    {...register("cost")}
-                    defaultValue={product?.cost}
-                    type="number"
+                    {...register("cost", {
+                      setValueAs: (v) => parseNumber(v),
+                      onChange: (e) => {
+                        const numericValue = parseNumber(e.target.value);
+                        e.target.value = formatNumber(numericValue);
+                      },
+                    })}
+                    type="text"
                     placeholder="0"
                     className="h-9 text-sm border-zinc-200 focus-visible:ring-emerald-500 pl-8"
                   />
@@ -174,7 +193,6 @@ export function UpdateProductModal({
               )}
               <Input
                 {...register("stock")}
-                defaultValue={product?.stock}
                 type="number"
                 placeholder="0"
                 className="h-9 text-sm border-zinc-200 focus-visible:ring-emerald-500"

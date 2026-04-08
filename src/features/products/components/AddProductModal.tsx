@@ -17,6 +17,7 @@ import { TypeProductInput } from "../types/ProductInput.type";
 import postProductAction from "../actions/postProduct.action";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
+import { formatNumber, parseNumber } from "@/utils/formatCurrency.util";
 
 type AddProductModalProps = {
   open: boolean;
@@ -126,8 +127,14 @@ export function AddProductModal({ open, onClose }: AddProductModalProps) {
                     Rp
                   </span>
                   <Input
-                    {...register("price")}
-                    type="number"
+                    {...register("price", {
+                      setValueAs: (v) => parseNumber(v),
+                      onChange: (e) => {
+                        const numericValue = parseNumber(e.target.value);
+                        e.target.value = formatNumber(numericValue);
+                      },
+                    })}
+                    type="text"
                     placeholder="0"
                     className="h-9 text-sm border-zinc-200 focus-visible:ring-emerald-500 pl-8"
                   />
@@ -145,8 +152,14 @@ export function AddProductModal({ open, onClose }: AddProductModalProps) {
                     Rp
                   </span>
                   <Input
-                    {...register("cost")}
-                    type="number"
+                    {...register("cost", {
+                      setValueAs: (v) => parseNumber(v),
+                      onChange: (e) => {
+                        const numericValue = parseNumber(e.target.value);
+                        e.target.value = formatNumber(numericValue);
+                      },
+                    })}
+                    type="text"
                     placeholder="0"
                     className="h-9 text-sm border-zinc-200 focus-visible:ring-emerald-500 pl-8"
                   />

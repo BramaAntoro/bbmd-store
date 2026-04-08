@@ -25,9 +25,9 @@ export default async function getStatsProductsService(): Promise<
   const outOfStock = data?.filter((product) => product.stock === 0).length;
 
   const stats: TypeProductStatsCard[] = [
-    { label: "Total Products", value: String(totalProduct ?? 0) },
-    { label: "Total Stock", value: String(totalStock ?? 0) },
-    { label: "Out of Stock", value: String(outOfStock ?? 0) },
+    { label: "Total Produk", value: String(totalProduct ?? 0) },
+    { label: "Total Stok", value: String(totalStock ?? 0) },
+    { label: "Stok Habis", value: String(outOfStock ?? 0) },
   ];
 
   if (error) throw new AppError("Failed to get total products");
