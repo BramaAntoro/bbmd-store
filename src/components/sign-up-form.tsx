@@ -52,7 +52,6 @@ export function SignUpForm({
           },
         },
       });
-      console.log(data)
       if (error) throw error;
 
       if (data.user) {
