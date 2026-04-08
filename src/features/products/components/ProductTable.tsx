@@ -18,7 +18,7 @@ import {
   DialogTitle,
   DialogFooter,
 } from "@/components/ui/dialog";
-import deleteProductAction from "../actions/deleteProduct,action";
+import deleteProductAction from "../actions/deleteProduct.action";
 
 export function ProductTable({
   products,

@@ -10,4 +10,4 @@
 import z from "zod";
 import { productSchema } from "../schema/products.schema";
 
-export type TypeProductInput = z.infer<typeof productSchema>;
+export type TypeProductInput = z.infer<typeof productSchema> & {id: string};
