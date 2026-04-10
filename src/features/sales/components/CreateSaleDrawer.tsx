@@ -1,50 +1,48 @@
 "use client";
 
-import { useState } from "react";
-import { X, Search, Minus, Plus, CheckCircle, Camera } from "lucide-react";
+import { useEffect, useState } from "react";
+import { Search, Minus, Plus, CheckCircle, Camera } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { cn } from "@/lib/utils";
+import getProductsAction from "@/features/products/actions/getProducts.action";
+import { TypeProduct } from "@/features/products/types/Product.type";
+import { AppError } from "@/lib/errors/AppError";
+import { TypeSaleInput } from "../types/SaleInput.type";
+import postSaleAction from "../actions/postSale.action";
+import { useRouter } from "next/navigation";
+import { TypeCartItem } from "../types/CartItems.type";
+import { TypeCreateSaleDrawerProps } from "../types/CreateSaleDrawerProps.Type";
+import { formatNumber } from "@/utils/formatCurrency.util";
 
-type CartItem = {
-  id: string;
-  name: string;
-  price: number;
-  quantity: number;
-};
 
-type CreateSaleDrawerProps = {
-  open: boolean;
-  onClose: () => void;
-};
-
-const MOCK_PRODUCTS = [
-  { id: "1", name: "Wireless Mouse", price: 299000, stock: 50 },
-  { id: "2", name: "Mechanical Keyboard", price: 899000, stock: 30 },
-  { id: "3", name: "USB-C Hub", price: 499000, stock: 0 },
-  { id: "4", name: "Webcam HD", price: 699000, stock: 5 },
-  { id: "5", name: "Laptop Stand", price: 349000, stock: 25 },
-];
-
-function formatCurrency(amount: number) {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  }).format(amount);
-}
-
-export function CreateSaleDrawer({ open, onClose }: CreateSaleDrawerProps) {
+export function CreateSaleDrawer({ open, onClose }: TypeCreateSaleDrawerProps) {
   const [search, setSearch] = useState("");
-  const [cart, setCart] = useState<CartItem[]>([]);
+  const [cart, setCart] = useState<TypeCartItem[]>([]);
   const [scannerActive, setScannerActive] = useState(false);
+  const [products, setProducts] = useState<TypeProduct[]>([]);
+  const [serverError, setServerError] = useState<string | null>(null);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const filteredProducts = MOCK_PRODUCTS.filter((p) =>
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchDataProduct = async () => {
+      const res = await getProductsAction();
+      if (res instanceof AppError) return;
+      if (!("data" in res)) return;
+      setProducts(res.data ?? []);
+    };
+    fetchDataProduct();
+  }, []);
+
+  const filteredProducts = products.filter((p) =>
     p.name.toLowerCase().includes(search.toLowerCase()),
   );
 
-  const addToCart = (product: (typeof MOCK_PRODUCTS)[0]) => {
+  const addToCart = (product: TypeProduct) => {
     if (product.stock === 0) return;
+
     setCart((prev) => {
       const existing = prev.find((item) => item.id === product.id);
       if (existing) {
@@ -60,19 +58,34 @@ export function CreateSaleDrawer({ open, onClose }: CreateSaleDrawerProps) {
           id: product.id,
           name: product.name,
           price: product.price,
+          cost: product.cost,
           quantity: 1,
         },
       ];
     });
+
+    setProducts((prev) =>
+      prev.map((p) => (p.id === product.id ? { ...p, stock: p.stock - 1 } : p)),
+    );
   };
 
-  const updateQuantity = (id: string, delta: number) => {
+  const updateQuantity = (item: TypeCartItem, delta: number) => {
+    const product = products.find((p) => p.id === item.id);
+    if (!product) return;
+    if (delta === 1 && product.stock === 0) return;
+
     setCart((prev) =>
       prev
-        .map((item) =>
-          item.id === id ? { ...item, quantity: item.quantity + delta } : item,
+        .map((i) =>
+          i.id === item.id ? { ...i, quantity: i.quantity + delta } : i,
         )
-        .filter((item) => item.quantity > 0),
+        .filter((i) => i.quantity > 0),
+    );
+
+    setProducts((prev) =>
+      prev.map((p) =>
+        p.id === item.id ? { ...p, stock: p.stock - delta } : p,
+      ),
     );
   };
 
@@ -82,6 +95,34 @@ export function CreateSaleDrawer({ open, onClose }: CreateSaleDrawerProps) {
   );
   const total = subtotal;
   const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+  const handleSubmit = async () => {
+    if (cart.length === 0) return;
+    setIsSubmitting(true);
+    setServerError(null);
+
+    try {
+      const items: TypeSaleInput = cart.map((item) => ({
+        product_id: item.id,
+        price: item.price,
+        cost: item.cost,
+        quantity: item.quantity,
+      }));
+
+      await postSaleAction(items);
+      setCart([]);
+      router.refresh();
+      onClose();
+    } catch (error: unknown) {
+      if (error instanceof Error) {
+        setServerError(error.message);
+      } else {
+        setServerError("Terjadi kesalahan tidak diketahui");
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
 
   if (!open) return null;
 
@@ -96,27 +137,13 @@ export function CreateSaleDrawer({ open, onClose }: CreateSaleDrawerProps) {
       {/* Drawer */}
       <div className="fixed inset-0 z-50 flex">
         <div className="flex w-full max-w-5xl mx-auto my-4 rounded-2xl overflow-hidden shadow-2xl bg-zinc-50">
-          {/* LEFT — Product Search & Scanner */}
+          {/* LEFT */}
           <div className="w-[45%] flex flex-col bg-white border-r border-zinc-100">
-            {/* Header */}
             <div className="px-6 py-5 border-b border-zinc-100">
-              <div className="flex items-center justify-between mb-1">
-                <h2 className="text-xl font-bold text-zinc-900">
-                  Terminal POS
-                </h2>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={onClose}
-                  className="h-8 w-8 text-zinc-400 hover:text-zinc-700"
-                >
-                  <X size={16} />
-                </Button>
-              </div>
-              <p className="text-xs text-zinc-400">Siap untuk transaksi</p>
+              <h2 className="text-xl font-bold text-zinc-900">Terminal POS</h2>
+              <p className="text-xs text-zinc-400 mt-1">Siap untuk transaksi</p>
             </div>
 
-            {/* Search */}
             <div className="px-6 py-4 border-b border-zinc-100">
               <p className="text-[10px] font-semibold uppercase tracking-widest text-zinc-400 mb-2">
                 Cari Produk
@@ -135,7 +162,6 @@ export function CreateSaleDrawer({ open, onClose }: CreateSaleDrawerProps) {
               </div>
             </div>
 
-            {/* Product List */}
             <div className="flex-1 overflow-y-auto px-6 py-4">
               <div className="flex flex-col gap-2">
                 {filteredProducts.map((product) => (
@@ -175,14 +201,13 @@ export function CreateSaleDrawer({ open, onClose }: CreateSaleDrawerProps) {
                       </div>
                     </div>
                     <p className="text-sm font-semibold text-zinc-700 shrink-0">
-                      {formatCurrency(product.price)}
+                      {formatNumber(product.price)}
                     </p>
                   </button>
                 ))}
               </div>
             </div>
 
-            {/* Scanner */}
             <div className="px-6 py-4 border-t border-zinc-100">
               <Button
                 variant="outline"
@@ -204,7 +229,6 @@ export function CreateSaleDrawer({ open, onClose }: CreateSaleDrawerProps) {
                       Camera feed akan muncul di sini
                     </p>
                   </div>
-                  {/* Scanner line animation */}
                   <div className="absolute inset-x-4 h-0.5 bg-emerald-400 top-1/2 animate-pulse" />
                   <div className="absolute bottom-2 left-2 flex items-center gap-1.5">
                     <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
@@ -217,9 +241,8 @@ export function CreateSaleDrawer({ open, onClose }: CreateSaleDrawerProps) {
             </div>
           </div>
 
-          {/* RIGHT — Cart & Checkout */}
+          {/* RIGHT */}
           <div className="flex-1 flex flex-col bg-zinc-50">
-            {/* Cart Header */}
             <div className="px-6 py-5 border-b border-zinc-100 bg-white">
               <div className="flex items-center justify-between">
                 <h3 className="text-base font-semibold text-zinc-900">
@@ -233,7 +256,6 @@ export function CreateSaleDrawer({ open, onClose }: CreateSaleDrawerProps) {
               </div>
             </div>
 
-            {/* Cart Items */}
             <div className="flex-1 overflow-y-auto px-6 py-4">
               {cart.length === 0 ? (
                 <div className="h-full flex items-center justify-center">
@@ -259,18 +281,17 @@ export function CreateSaleDrawer({ open, onClose }: CreateSaleDrawerProps) {
                             {item.name}
                           </p>
                           <p className="text-xs text-zinc-400 mt-0.5">
-                            {formatCurrency(item.price)} / item
+                            {formatNumber(item.price)} / item
                           </p>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-3">
-                        {/* Quantity Control */}
                         <div className="flex items-center gap-2">
                           <Button
                             variant="outline"
                             size="icon"
-                            onClick={() => updateQuantity(item.id, -1)}
+                            onClick={() => updateQuantity(item, -1)}
                             className="h-6 w-6 rounded-full border-zinc-200 text-zinc-500 hover:border-red-200 hover:text-red-500 hover:bg-red-50"
                           >
                             <Minus size={10} />
@@ -281,16 +302,14 @@ export function CreateSaleDrawer({ open, onClose }: CreateSaleDrawerProps) {
                           <Button
                             variant="outline"
                             size="icon"
-                            onClick={() => updateQuantity(item.id, 1)}
+                            onClick={() => updateQuantity(item, 1)}
                             className="h-6 w-6 rounded-full border-zinc-200 text-zinc-500 hover:border-emerald-200 hover:text-emerald-600 hover:bg-emerald-50"
                           >
                             <Plus size={10} />
                           </Button>
                         </div>
-
-                        {/* Subtotal */}
                         <p className="text-sm font-semibold text-zinc-700 w-24 text-right">
-                          {formatCurrency(item.price * item.quantity)}
+                          {formatNumber(item.price * item.quantity)}
                         </p>
                       </div>
                     </div>
@@ -299,32 +318,43 @@ export function CreateSaleDrawer({ open, onClose }: CreateSaleDrawerProps) {
               )}
             </div>
 
-            {/* Summary & Checkout */}
             <div className="px-6 py-5 border-t border-zinc-200 bg-white">
-              {/* Summary */}
+              {serverError && (
+                <p className="text-xs text-red-500 mb-3">{serverError}</p>
+              )}
+
               <div className="flex flex-col gap-2 mb-4">
                 <div className="flex items-center justify-between text-sm text-zinc-500">
                   <span>Subtotal</span>
-                  <span>{formatCurrency(subtotal)}</span>
+                  <span>{formatNumber(subtotal)}</span>
                 </div>
                 <div className="flex items-center justify-between">
                   <span className="text-base font-bold text-zinc-900">
                     Total
                   </span>
                   <span className="text-xl font-bold text-emerald-600">
-                    {formatCurrency(total)}
+                    {formatNumber(total)}
                   </span>
                 </div>
               </div>
 
-              {/* Complete Sale Button */}
-              <Button
-                disabled={cart.length === 0}
-                className="w-full h-11 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm shadow-sm disabled:opacity-40"
-              >
-                <CheckCircle size={16} className="mr-2" />
-                Selesaikan Transaksi
-              </Button>
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  onClick={onClose} // ✅ tidak perlu disabled saat cart kosong
+                  className="flex-1 h-11 border-zinc-200 text-zinc-700 hover:bg-zinc-50 font-semibold text-sm"
+                >
+                  Batalkan
+                </Button>
+                <Button
+                  onClick={handleSubmit} // ✅ tanpa ()
+                  disabled={cart.length === 0 || isSubmitting}
+                  className="flex-1 h-11 bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm shadow-sm disabled:opacity-40"
+                >
+                  <CheckCircle size={16} className="mr-2" />
+                  {isSubmitting ? "Memproses..." : "Selesaikan Transaksi"}
+                </Button>
+              </div>
             </div>
           </div>
         </div>

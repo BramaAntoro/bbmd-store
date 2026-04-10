@@ -44,7 +44,7 @@ function formatCurrency(amount: number) {
 }
 
 function formatId(id: string) {
-  return id.slice(0, 8).toUpperCase(); // ambil 8 karakter pertama UUID
+  return id.slice(0, 8).toUpperCase();
 }
 
 export function SaleTable({

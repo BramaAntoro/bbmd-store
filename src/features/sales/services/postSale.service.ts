@@ -22,15 +22,37 @@ export default async function postSaleService(
     .select("id")
     .single();
 
-  const salesItem = { sale_id: sales?.id, ...data };
-
   if (errorSales) throw new AppError(errorSales.message);
+
+  const salesItems = data.map((item) => ({
+    sale_id: sales.id,
+    product_id: item.product_id,
+    price: item.price,
+    cost: item.cost,
+  }));
 
   const { error: errorSalesItem } = await supabase
     .from("sales_items")
-    .insert(salesItem);
+    .insert(salesItems);
 
   if (errorSalesItem) throw new AppError(errorSalesItem.message);
 
-  return responseSuccess(null, "Success create sale", 201)
+  for (const item of data) {
+    const { data: product, error: errorFetch } = await supabase
+      .from("products")
+      .select("stock")
+      .eq("id", item.product_id)
+      .single();
+
+    if (errorFetch) throw new AppError(errorFetch.message);
+
+    const { error: errorUpdate } = await supabase
+      .from("products")
+      .update({ stock: product.stock - item.quantity })
+      .eq("id", item.product_id);
+
+    if (errorUpdate) throw new AppError(errorUpdate.message);
+  }
+
+  return responseSuccess(null, "Success create sale", 201);
 }
