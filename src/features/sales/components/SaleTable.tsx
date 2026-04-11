@@ -1,70 +1,41 @@
 "use client";
 
-import { Eye, ChevronLeft, ChevronRight } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { usePageChange } from "@/hooks/usePageChange.hook";
+import setPagination from "@/utils/setPagination.util";
+import { TypeSaleTableProps } from "../types/SaleTableProps.type";
+import { formatDate, formatTime } from "@/utils/formatDate.util";
+import { formatCurrency } from "@/utils/formatCurrency.util";
+import { formatId } from "@/utils/formatId.util";
 import { useRouter, useSearchParams } from "next/navigation";
-import { Tables } from "@/lib/supabase/database.types";
-
-export type SaleListItem = Pick<
-  Tables<"sales">,
-  "id" | "created_at" | "total"
-> & {
-  items_count: number;
-};
-
-type SaleTableProps = {
-  sales: SaleListItem[];
-  currentPage: number;
-  totalPages: number;
-  totalSales: number;
-};
-
-function formatDate(dateString: string) {
-  return new Date(dateString).toLocaleDateString("id-ID", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
-  });
-}
-
-function formatTime(dateString: string) {
-  return new Date(dateString).toLocaleTimeString("id-ID", {
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
-
-function formatCurrency(amount: number) {
-  return new Intl.NumberFormat("id-ID", {
-    style: "currency",
-    currency: "IDR",
-    minimumFractionDigits: 0,
-  }).format(amount);
-}
-
-function formatId(id: string) {
-  return id.slice(0, 8).toUpperCase();
-}
 
 export function SaleTable({
   sales,
   currentPage,
   totalPages,
   totalSales,
-}: SaleTableProps) {
+}: TypeSaleTableProps) {
+  const { handlePageChange } = usePageChange();
+  const { from, to } = setPagination(currentPage, totalSales);
   const router = useRouter();
   const searchParams = useSearchParams();
+  const range = searchParams.get("range") ?? "";
 
-  const handlePageChange = (page: number) => {
+  const handleFilterChange = (nextRange: "30d" | "1y") => {
     const params = new URLSearchParams(searchParams.toString());
-    params.set("page", String(page));
+    params.set("range", nextRange);
+    params.set("page", "1");
     router.push(`?${params.toString()}`);
   };
 
-  const perPage = 10;
-  const from = (currentPage - 1) * perPage + 1;
-  const to = Math.min(currentPage * perPage, totalSales);
+  const handleClearFilters = () => {
+    const params = new URLSearchParams(searchParams.toString());
+    params.delete("range");
+    params.set("page", "1");
+    router.push(`?${params.toString()}`);
+  };
 
   return (
     <div className="rounded-xl border border-zinc-200 bg-white shadow-sm overflow-hidden">
@@ -73,14 +44,29 @@ export function SaleTable({
         <div className="flex items-center gap-2">
           <Button
             variant="outline"
-            className="flex items-center gap-2 h-8 px-3 text-xs border-zinc-200 bg-white text-zinc-600 hover:bg-zinc-50"
+            className={cn(
+              "flex items-center gap-2 h-8 px-3 text-xs border-zinc-200 bg-white hover:bg-zinc-50",
+              range === "30d" ? "text-emerald-600 border-emerald-200 bg-emerald-50/40" : "text-zinc-600",
+            )}
+            onClick={() => handleFilterChange("30d")}
           >
-            Last 30 Days ▾
+            30 Hari
+          </Button>
+          <Button
+            variant="outline"
+            className={cn(
+              "flex items-center gap-2 h-8 px-3 text-xs border-zinc-200 bg-white hover:bg-zinc-50",
+              range === "1y" ? "text-emerald-600 border-emerald-200 bg-emerald-50/40" : "text-zinc-600",
+            )}
+            onClick={() => handleFilterChange("1y")}
+          >
+            1 Tahun
           </Button>
         </div>
         <Button
           variant="ghost"
           className="text-xs text-emerald-600 hover:text-emerald-700 h-8 px-3"
+          onClick={handleClearFilters}
         >
           Clear all filters
         </Button>
@@ -101,9 +87,6 @@ export function SaleTable({
               </th>
               <th className="px-5 py-3.5 text-left text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
                 Total
-              </th>
-              <th className="px-5 py-3.5 text-right text-[11px] font-semibold uppercase tracking-widest text-zinc-400">
-                Actions
               </th>
             </tr>
           </thead>
@@ -138,18 +121,6 @@ export function SaleTable({
                   {formatCurrency(sale.total)}
                 </td>
 
-                {/* Actions */}
-                <td className="px-5 py-4">
-                  <div className="flex items-center justify-end">
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      className="h-8 w-8 text-zinc-400 hover:text-emerald-600 hover:bg-emerald-50 group-hover:opacity-100 transition-all"
-                    >
-                      <Eye size={14} />
-                    </Button>
-                  </div>
-                </td>
               </tr>
             ))}
           </tbody>
