@@ -2,24 +2,21 @@ import { SaleHeader } from "./SaleHeader";
 import { SaleStats } from "./SaleStats";
 import { SaleTable } from "./SaleTable";
 import getSalesAction from "../actions/getSales.action";
+import getStatsSalesAction from "../actions/getStatsSales.action";
 import { TypeSearchParams } from "@/types/searchParams.type";
 import setPageNumber from "@/utils/setPageNumber.util";
 
-
-const MOCK_SALE_STATS = [
-  { label: "Monthly Revenue", value: "Rp 42.850.000", change: 12.5 },
-  { label: "Transactions", value: "1.284" },
-  { label: "Average Order Value", value: "Rp 33.370", change: -2.4 },
-];
 
 export default async function SaleCatalogPage({
   searchParams,
 }: TypeSearchParams) {
   const { page } = setPageNumber(searchParams?.page, searchParams?.name);
   const res = await getSalesAction({ page, range: searchParams?.range });
+  const statsRes = await getStatsSalesAction({ range: searchParams?.range });
 
   const sales = res.data ?? [];
   const meta = res.meta ?? { page: 1, totalPages: 1, total: 0, limit: 10 };
+  const dataStats = statsRes.data ?? [];
 
   return (
     <div className="min-h-screen bg-zinc-50 p-6 md:p-8">
@@ -28,7 +25,7 @@ export default async function SaleCatalogPage({
         <span className="text-emerald-600">Sales</span>
       </nav>
       <SaleHeader />
-      <SaleStats stats={MOCK_SALE_STATS} />
+      <SaleStats stats={dataStats} />
       <SaleTable
         sales={sales}
         currentPage={meta.page}
