@@ -29,6 +29,7 @@ export default async function postSaleService(
     product_id: item.product_id,
     price: item.price,
     cost: item.cost,
+    quantity: item.quantity,
   }));
 
   const { error: errorSalesItem } = await supabase
@@ -52,6 +53,15 @@ export default async function postSaleService(
       .eq("id", item.product_id);
 
     if (errorUpdate) throw new AppError(errorUpdate.message);
+
+    const { error: errorLog } = await supabase.from("stock_logs").insert({
+      id: crypto.randomUUID(),
+      product_id: item.product_id,
+      quantity: item.quantity,
+      type: "OUT",
+    });
+
+    if (errorLog) throw new AppError(errorLog.message);
   }
 
   return responseSuccess(null, "Success create sale", 201);

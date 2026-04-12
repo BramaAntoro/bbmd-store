@@ -11,12 +11,14 @@ import {
 } from "@/components/ui/sidebar";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { useEffect, useState } from "react";
 import {
   LayoutDashboard,
   Package,
   ShoppingCart,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { createClient } from "@/lib/supabase/client";
 
 const navItems = [
   {
@@ -41,11 +43,35 @@ const navItems = [
 
 export function AppSidebar() {
   const pathname = usePathname();
+  const [storeName, setStoreName] = useState("BBMD");
 
   const isActive = (href: string, exact: boolean) =>
     exact
       ? pathname === href
       : pathname === href || pathname?.startsWith(`${href}/`);
+
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const supabase = createClient();
+      const {
+        data: { user },
+      } = await supabase.auth.getUser();
+
+      if (!user) return;
+
+      const { data } = await supabase
+        .from("profiles")
+        .select("name")
+        .eq("id", user.id)
+        .single();
+
+      if (data?.name) {
+        setStoreName(data.name);
+      }
+    };
+
+    fetchProfile();
+  }, []);
 
   return (
     <Sidebar className="border-r border-zinc-100 bg-white">
@@ -56,7 +82,7 @@ export function AppSidebar() {
             <span className="text-white text-xs font-bold tracking-tight">B</span>
           </div>
           <span className="text-sm font-semibold text-zinc-800 tracking-wide">
-            BBMD
+            {storeName}
           </span>
         </div>
       </SidebarHeader>
@@ -105,7 +131,7 @@ export function AppSidebar() {
       {/* Footer */}
       <SidebarFooter className="px-5 py-4 border-t border-zinc-100">
         <p className="text-[10px] text-zinc-400 text-center">
-          © {new Date().getFullYear()} BBMD
+          © {new Date().getFullYear()} Brama
         </p>
       </SidebarFooter>
     </Sidebar>

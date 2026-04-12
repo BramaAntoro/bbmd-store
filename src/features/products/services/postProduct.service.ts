@@ -24,5 +24,16 @@ export default async function postProductService(
     console.error("SUPABASE ERROR:", error);
     throw new AppError(error.message);
   }
+
+  if (data.stock && data.stock > 0) {
+    const { error: logError } = await supabase.from("stock_logs").insert({
+      id: crypto.randomUUID(),
+      product_id: data.id,
+      quantity: data.stock,
+      type: "IN",
+    });
+
+    if (logError) throw new AppError(logError.message);
+  }
   return responseSuccess(data, "Success create product", 201);
 }

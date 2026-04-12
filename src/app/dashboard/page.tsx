@@ -1,7 +1,7 @@
-import React from 'react'
+import DashboardPage from "@/features/dashboard/components/DashboardPage";
+import { TypeSearchParams } from "@/types/searchParams.type";
 
-export default function page() {
-  return (
-    <div>Dashbaord</div>
-  )
+export default async function page({ searchParams }: TypeSearchParams) {
+  const resolvedSearchParams = await searchParams;
+  return <DashboardPage searchParams={resolvedSearchParams} />;
 }
