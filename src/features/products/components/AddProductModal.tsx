@@ -40,7 +40,12 @@ export function AddProductModal({ open, onClose }: AddProductModalProps) {
 
   const onSubmit: SubmitHandler<TypeProductInput> = async (data) => {
     try {
-      await postProductAction(data);
+      const formattedData = {
+        ...data,
+        sku: data.sku ? (data.sku.startsWith("SKU-") ? data.sku : `SKU-${data.sku}`) : undefined,
+        barcode: data.barcode.startsWith("BAR-") ? data.barcode : `BAR-${data.barcode}`,
+      };
+      await postProductAction(formattedData);
       reset();
       onClose();
       router.refresh();
@@ -92,7 +97,7 @@ export function AddProductModal({ open, onClose }: AddProductModalProps) {
                 )}
                 <Input
                   {...register("sku")}
-                  placeholder="e.g. SKU-001"
+                  placeholder="e.g. 001"
                   className="h-9 text-sm border-zinc-200 focus-visible:ring-emerald-500"
                 />
               </div>
@@ -107,7 +112,7 @@ export function AddProductModal({ open, onClose }: AddProductModalProps) {
                 )}
                 <Input
                   {...register("barcode")}
-                  placeholder="e.g. BAR-001"
+                  placeholder="e.g. 001"
                   className="h-9 text-sm border-zinc-200 focus-visible:ring-emerald-500"
                 />
               </div>

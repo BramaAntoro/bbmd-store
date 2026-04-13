@@ -19,7 +19,7 @@ export default async function SaleCatalogPage({
   const dataStats = statsRes.data ?? [];
 
   return (
-    <div className="min-h-screen bg-zinc-50 p-6 md:p-8">
+    <div className="min-h-screen bg-zinc-50 p-4 sm:p-6 md:p-8">
       <nav className="mb-5 flex items-center gap-2 text-xs font-medium tracking-widest uppercase text-zinc-400">
         <span className="text-zinc-300">/</span>
         <span className="text-emerald-600">Sales</span>

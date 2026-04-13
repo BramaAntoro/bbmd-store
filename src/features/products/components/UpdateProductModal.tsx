@@ -50,6 +50,8 @@ export function UpdateProductModal({
     if (product) {
       reset({
         ...product,
+        sku: product.sku?.replace("SKU-", ""),
+        barcode: product.barcode.replace("BAR-", ""),
         price: formatNumber(product.price) as unknown as number,
         cost: formatNumber(product.cost) as unknown as number,
       });
@@ -58,7 +60,13 @@ export function UpdateProductModal({
 
   const onSubmit: SubmitHandler<TypeProductUpdate> = async (data) => {
     try {
-      await updateProductAction({ ...data, id: product!.id });
+      const formattedData = {
+        ...data,
+        id: product!.id,
+        sku: data.sku ? (data.sku.startsWith("SKU-") ? data.sku : `SKU-${data.sku}`) : undefined,
+        barcode: data.barcode.startsWith("BAR-") ? data.barcode : `BAR-${data.barcode}`,
+      };
+      await updateProductAction(formattedData);
       onClose();
       router.refresh();
     } catch (error: unknown) {
@@ -108,7 +116,7 @@ export function UpdateProductModal({
                 )}
                 <Input
                   {...register("sku")}
-                  placeholder="e.g. SKU-001"
+                  placeholder="e.g. 001"
                   className="h-9 text-sm border-zinc-200 focus-visible:ring-emerald-500"
                 />
               </div>
@@ -123,7 +131,7 @@ export function UpdateProductModal({
                 )}
                 <Input
                   {...register("barcode")}
-                  placeholder="e.g. BAR-001"
+                  placeholder="e.g. 001"
                   className="h-9 text-sm border-zinc-200 focus-visible:ring-emerald-500"
                 />
               </div>

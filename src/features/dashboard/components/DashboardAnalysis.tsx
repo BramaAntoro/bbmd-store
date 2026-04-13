@@ -42,7 +42,7 @@ export default function DashboardAnalysis({
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-3">
       <div className="rounded-xl border border-zinc-200 bg-white p-5 shadow-sm lg:col-span-2">
-        <div className="flex items-center justify-between gap-3">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
           <div>
             <p className="text-xs font-semibold uppercase tracking-widest text-zinc-400">
               Analisis Pendapatan
@@ -170,21 +170,23 @@ export default function DashboardAnalysis({
                   strokeWidth="2.5"
                 />
               </svg>
+              {labels.length > 0 && (
+                <div
+                  className="mt-2 grid gap-2 text-[10px] text-zinc-400 min-w-[520px]"
+                  style={{
+                    gridTemplateColumns: `repeat(${labels.length}, minmax(0, 1fr))`,
+                    paddingLeft: `${paddingLeft}px`,
+                    paddingRight: `${paddingRight}px`,
+                  }}
+                >
+                  {labels.map((label) => (
+                    <span key={label} className="text-center">
+                      {label}
+                    </span>
+                  ))}
+                </div>
+              )}
             </div>
-            {labels.length > 0 && (
-              <div
-                className="mt-2 grid gap-2 text-[10px] text-zinc-400"
-                style={{
-                  gridTemplateColumns: `repeat(${labels.length}, minmax(0, 1fr))`,
-                }}
-              >
-                {labels.map((label) => (
-                  <span key={label} className="text-center">
-                    {label}
-                  </span>
-                ))}
-              </div>
-            )}
           </div>
         </div>
       </div>

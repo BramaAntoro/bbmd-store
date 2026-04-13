@@ -19,13 +19,13 @@ export function SaleHeader() {
             Lacak dan kelola riwayat transaksi toko kamu.
           </p>
         </div>
-        <div className="flex items-center gap-2.5 shrink-0">
+        <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2.5 shrink-0">
           <Button
             onClick={() => setOpen(true)}
-            className="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium h-9 px-4 shadow-sm"
+            className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-medium h-9 px-4 shadow-sm w-full sm:w-auto"
           >
             <Plus size={14} />
-            Tambah Transaksi
+            <span>Tambah Transaksi</span>
           </Button>
         </div>
       </div>

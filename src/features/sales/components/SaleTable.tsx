@@ -40,12 +40,12 @@ export function SaleTable({
   return (
     <div className="rounded-xl border border-zinc-200 bg-white shadow-sm overflow-hidden">
       {/* Filter */}
-      <div className="px-5 py-3.5 border-b border-zinc-100 flex items-center justify-between">
-        <div className="flex items-center gap-2">
+      <div className="px-5 py-3.5 border-b border-zinc-100 flex flex-col sm:flex-row items-center justify-between gap-3">
+        <div className="flex items-center gap-2 w-full sm:w-auto overflow-x-auto pb-1 sm:pb-0">
           <Button
             variant="outline"
             className={cn(
-              "flex items-center gap-2 h-8 px-3 text-xs border-zinc-200 bg-white hover:bg-zinc-50",
+              "flex items-center gap-2 h-8 px-3 text-xs border-zinc-200 bg-white hover:bg-zinc-50 shrink-0",
               range === "30d" ? "text-emerald-600 border-emerald-200 bg-emerald-50/40" : "text-zinc-600",
             )}
             onClick={() => handleFilterChange("30d")}
@@ -55,7 +55,7 @@ export function SaleTable({
           <Button
             variant="outline"
             className={cn(
-              "flex items-center gap-2 h-8 px-3 text-xs border-zinc-200 bg-white hover:bg-zinc-50",
+              "flex items-center gap-2 h-8 px-3 text-xs border-zinc-200 bg-white hover:bg-zinc-50 shrink-0",
               range === "1y" ? "text-emerald-600 border-emerald-200 bg-emerald-50/40" : "text-zinc-600",
             )}
             onClick={() => handleFilterChange("1y")}
@@ -65,7 +65,7 @@ export function SaleTable({
         </div>
         <Button
           variant="ghost"
-          className="text-xs text-emerald-600 hover:text-emerald-700 h-8 px-3"
+          className="text-xs text-emerald-600 hover:text-emerald-700 h-8 px-3 w-full sm:w-auto"
           onClick={handleClearFilters}
         >
           Clear all filters
@@ -128,42 +128,44 @@ export function SaleTable({
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between border-t border-zinc-100 px-5 py-3.5 bg-zinc-50/40">
-        <p className="text-xs text-zinc-400">
+      <div className="flex flex-col sm:flex-row items-center justify-between border-t border-zinc-100 px-5 py-3.5 bg-zinc-50/40 gap-4">
+        <p className="text-xs text-zinc-400 order-2 sm:order-1">
           Showing {from} to {to} of {totalSales} results
         </p>
-        <div className="flex items-center gap-1">
+        <div className="flex items-center gap-1 order-1 sm:order-2">
           <Button
             variant="ghost"
             size="icon"
-            className="h-7 w-7 text-zinc-400 hover:text-zinc-700 disabled:opacity-30"
+            className="h-8 w-8 text-zinc-400 hover:text-zinc-700 disabled:opacity-30"
             disabled={currentPage === 1}
             onClick={() => handlePageChange(currentPage - 1)}
           >
             <ChevronLeft size={14} />
           </Button>
 
-          {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-            <Button
-              key={page}
-              variant="ghost"
-              size="icon"
-              onClick={() => handlePageChange(page)}
-              className={cn(
-                "h-7 w-7 text-xs font-medium",
-                currentPage === page
-                  ? "bg-emerald-600 text-white hover:bg-emerald-700"
-                  : "text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100",
-              )}
-            >
-              {page}
-            </Button>
-          ))}
+          <div className="flex items-center gap-1 mx-1">
+            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+              <Button
+                key={page}
+                variant="ghost"
+                size="icon"
+                onClick={() => handlePageChange(page)}
+                className={cn(
+                  "h-8 w-8 text-xs font-medium",
+                  currentPage === page
+                    ? "bg-emerald-600 text-white hover:bg-emerald-700 hover:text-white"
+                    : "text-zinc-500 hover:text-zinc-800 hover:bg-zinc-100",
+                )}
+              >
+                {page}
+              </Button>
+            ))}
+          </div>
 
           <Button
             variant="ghost"
             size="icon"
-            className="h-7 w-7 text-zinc-400 hover:text-zinc-700 disabled:opacity-30"
+            className="h-8 w-8 text-zinc-400 hover:text-zinc-700 disabled:opacity-30"
             disabled={currentPage === totalPages}
             onClick={() => handlePageChange(currentPage + 1)}
           >

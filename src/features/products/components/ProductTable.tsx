@@ -162,42 +162,47 @@ export function ProductTable({
         </div>
 
         {/* Pagination */}
-        <div className="flex items-center justify-between border-t border-zinc-100 px-5 py-3.5 bg-zinc-50/40">
-          <p className="text-xs text-zinc-400">
+        <div className="flex flex-col sm:flex-row items-center justify-between border-t border-zinc-100 px-5 py-3.5 bg-zinc-50/40 gap-4">
+          <p className="text-xs text-zinc-400 order-2 sm:order-1">
             Showing {from} to {to} of {totalProducts} products
           </p>
 
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-1 order-1 sm:order-2">
             <Button
               variant="ghost"
               size="icon"
               disabled={currentPage === 1}
               onClick={() => handlePageChange(currentPage - 1)}
+              className="h-8 w-8"
             >
               <ChevronLeft size={14} />
             </Button>
 
-            {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
-              <Button
-                key={page}
-                variant="ghost"
-                size="icon"
-                onClick={() => handlePageChange(page)}
-                className={cn(
-                  currentPage === page
-                    ? "bg-emerald-600 text-white"
-                    : "text-zinc-500",
-                )}
-              >
-                {page}
-              </Button>
-            ))}
+            <div className="flex items-center gap-1 mx-1">
+              {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => (
+                <Button
+                  key={page}
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => handlePageChange(page)}
+                  className={cn(
+                    "h-8 w-8 text-xs",
+                    currentPage === page
+                      ? "bg-emerald-600 text-white hover:bg-emerald-700 hover:text-white"
+                      : "text-zinc-500",
+                  )}
+                >
+                  {page}
+                </Button>
+              ))}
+            </div>
 
             <Button
               variant="ghost"
               size="icon"
               disabled={currentPage === totalPages}
               onClick={() => handlePageChange(currentPage + 1)}
+              className="h-8 w-8"
             >
               <ChevronRight size={14} />
             </Button>
