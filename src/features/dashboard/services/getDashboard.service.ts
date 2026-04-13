@@ -14,7 +14,7 @@ type SalesItemRow = {
   price: number;
   cost: number;
   product_id: string;
-  sales?: { user_id: string; created_at: string } | null;
+  sales?: { user_id: string; created_at: string }[] | null;
   products?: { name: string | null } | null;
 };
 
